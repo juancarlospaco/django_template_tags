@@ -18,7 +18,7 @@
 
 # metadata
 " Ninja Django Template Tags "
-__version__ = ' 0.2 '
+__version__ = ' 0.4 '
 __license__ = ' GPL '
 __author__ = ' juancarlospaco '
 __email__ = ' juancarlospaco@ubuntu.com '
@@ -36,7 +36,7 @@ from datetime import datetime
 from getpass import getuser
 from PyQt4.QtGui import (QMenu, QInputDialog, QDialog, QGroupBox, QPushButton,
     QTextEdit, QColor, QVBoxLayout, QLabel, QGraphicsDropShadowEffect,
-    QApplication, QAction, QFileDialog)
+    QApplication, QAction, QFileDialog, QLineEdit, QCompleter)
 
 from ninja_ide.core import plugin
 
@@ -50,6 +50,8 @@ class Main(plugin.Plugin):
         " Init Main Class "
         super(Main, self).initialize(*args, **kwargs)
         self.locator.get_service("menuApp").add_action(QAction(' ', self))
+        #self.locator.get_service("toolbar").add_action(QAction('Django Template "Search as I Type" Locator', self, triggered=self.search_tag))
+        self.locator.get_service("menuApp").add_action(QAction('Django Template Tags Locator', self, triggered=self.search_tag))
         # Django Builtin Template Tags
         self.menu0 = QMenu("Django Template TAGS")
         self.menu0a = QMenu("Boolean Operators")
@@ -239,6 +241,54 @@ class Main(plugin.Plugin):
         self.menu7.addAction('Im a Placeholder :)')
         self.locator.get_service("menuApp").add_menu(self.menu7)
         self.locator.get_service("menuApp").add_action(QAction(' ', self))
+
+    def search_tag(self):
+        ' dialog with an entry field and autocompleter to search and use tags '
+        dialog, group0, stringy = QDialog(), QGroupBox(), QLineEdit()
+        button, glow = QPushButton(' Make Django Template Tag '), QGraphicsDropShadowEffect()
+        group0.setTitle(__doc__)
+        stringy.setPlaceholderText(' Type to Search . . . ')
+        button.setMinimumSize(200, 50)
+        button.clicked.connect(lambda: self.templatag(str(stringy.text()).lower().strip()))
+        stringy.returnPressed.connect(lambda: self.templatag(str(stringy.text()).lower().strip()))
+        button.released.connect(lambda: dialog.close())
+        glow.setOffset(0)
+        glow.setBlurRadius(99)
+        glow.setColor(QColor(99, 255, 255))
+        button.setGraphicsEffect(glow)
+        vboxg0 = QVBoxLayout(group0)
+        for each_widget in (QLabel('<b>Search Tags and Filters as I Type'), stringy,
+            QLabel('<center><small><i>{}'.format(''.join((__doc__, __version__, __license__, 'by', __author__)))),
+            button):
+            vboxg0.addWidget(each_widget)
+            each_widget.setToolTip(each_widget.text())
+        stringy.setToolTip(' Type and press ENTER ')
+        QVBoxLayout(dialog).addWidget(group0)
+        completer = QCompleter(('autoescape', 'block', 'comment',
+        'csrf_token', 'cycle', 'debug', 'extends', 'filter', 'firstof', 'for',
+        'for...empty', 'if', 'ifchanged', 'ifequal', 'ifnotequal', 'include',
+        'load', 'now', 'regroup', 'spaceless', 'ssi', 'templatetag', 'verbatim',
+        'in operator', 'not in operator', 'widthratio', 'with', 'add',
+        'addslashes', 'capfirst', 'center', 'cut', 'date', 'default',
+        'default_if_none', 'dictsort', 'dictsortreversed', 'divisibleby',
+        'escape', 'escapejs', 'filesizeformat', 'first', 'fix_ampersands',
+        'floatformat', 'force_escape', 'get_digit', 'iriencode', 'join', 'last',
+        'lenght', 'lenght_is', 'linebreaks', 'linebreaksbr', 'linenumbers',
+        'ljust', 'lower', 'make_list', 'phone2numeric', 'pluralize', 'pprint',
+        'random', 'removetags', 'rjust', 'safe', 'safeseq', 'slice', 'slugify',
+        'stringformat', 'striptags', 'time', 'timesince', 'timeuntil', 'title',
+        'truncatechars', 'truncatewords', 'truncatewords_html',
+        'unordered_list', 'upper', 'urlencode', 'urlize', 'urlizetrunc',
+        'wordcount', 'wordwrap', 'yesno', 'apnumber', 'intcomma', 'intword',
+        'naturalday', 'naturaltime', 'ordinal', 'lorem', 'static',
+        'get_static_prefix', 'get_media_prefix', 'singlelinecomment',
+        'multilinecomment', 'singlelinecommentpopup', 'multilinecommentpopup',
+        'singlelinecommentclipboard', 'multilinecommentclipboard',
+        'multilinecommentfile', 'singlelinecommentdatetime'), self)
+        completer.setCompletionMode(QCompleter.PopupCompletion)
+        completer.setCaseSensitivity(0)
+        stringy.setCompleter(completer)
+        dialog.show()
 
     def templatag(self, action):
         ' parse and generate template markup '

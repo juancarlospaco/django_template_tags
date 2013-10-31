@@ -18,7 +18,7 @@
 
 # metadata
 " Ninja Django Template Tags "
-__version__ = ' 0.4 '
+__version__ = ' 0.5 '
 __license__ = ' GPL '
 __author__ = ' juancarlospaco '
 __email__ = ' juancarlospaco@ubuntu.com '
@@ -234,12 +234,10 @@ class Main(plugin.Plugin):
         self.menu6.addSeparator()
         self.menu6.addAction('Multi Line Comment from File', lambda: self.templatag('multilinecommentfile'))
         self.menu6.addAction('Single Line Comment from Date Time Now', lambda: self.templatag('singlelinecommentdatetime'))
+        self.menu6.addSeparator()
+        self.menu6.addAction('HTML Comment Out from Selected Text', lambda: self.templatag('htmlcomment'))
+        self.menu6.addAction('MS IE Conditional Comment from Selected Text', lambda: self.templatag('iecomment'))
         self.locator.get_service("menuApp").add_menu(self.menu6)
-
-        # Django Third Party Popular Template Tags and Filters
-        self.menu7 = QMenu("Django Template 3Party Tags")
-        self.menu7.addAction('Im a Placeholder :)')
-        self.locator.get_service("menuApp").add_menu(self.menu7)
         self.locator.get_service("menuApp").add_action(QAction(' ', self))
 
     def search_tag(self):
@@ -277,10 +275,10 @@ class Main(plugin.Plugin):
         'ljust', 'lower', 'make_list', 'phone2numeric', 'pluralize', 'pprint',
         'random', 'removetags', 'rjust', 'safe', 'safeseq', 'slice', 'slugify',
         'stringformat', 'striptags', 'time', 'timesince', 'timeuntil', 'title',
-        'truncatechars', 'truncatewords', 'truncatewords_html',
+        'truncatechars', 'truncatewords', 'truncatewords_html', 'htmlcomment',
         'unordered_list', 'upper', 'urlencode', 'urlize', 'urlizetrunc',
         'wordcount', 'wordwrap', 'yesno', 'apnumber', 'intcomma', 'intword',
-        'naturalday', 'naturaltime', 'ordinal', 'lorem', 'static',
+        'naturalday', 'naturaltime', 'ordinal', 'lorem', 'static', 'iecomment',
         'get_static_prefix', 'get_media_prefix', 'singlelinecomment',
         'multilinecomment', 'singlelinecommentpopup', 'multilinecommentpopup',
         'singlelinecommentclipboard', 'multilinecommentclipboard',
@@ -317,20 +315,20 @@ class Main(plugin.Plugin):
             self.locator.get_service("editor").insert_text('{% for ' + str(QInputDialog.getText(None, __doc__, "Variable to use to Iterate:", text='item')[0]).strip() + ' in ' + str(QInputDialog.getText(None, __doc__, "Sequence to Iterate:", text='values')[0]).strip() + ' %} ' + str(self.locator.get_service("editor").get_actual_tab().textCursor().selectedText().encode("utf-8")) + ' {% endfor %}')
         elif action in 'for...empty':
             self.locator.get_service("editor").insert_text('{% if ' + str(QInputDialog.getText(None, __doc__, "String to check:", text='"foo"')[0]).strip() + ' %} ' + str(self.locator.get_service("editor").get_actual_tab().textCursor().selectedText().encode("utf-8")) + ' {% empty %} ' + str(QInputDialog.getText(None, __doc__, "Output to use if for loop is Empty:", text='"Nothing."')[0]).strip() + ' {% endfor %}')
-        elif action in 'if':
-            pass
-        elif action in '== operator':
-            pass
-        elif action in '!= operator':
-            pass
-        elif action in '< operator':
-            pass
-        elif action in '> operator':
-            pass
-        elif action in '<= operator':
-            pass
-        elif action in '>= operator':
-            pass
+        #elif action in 'if':
+            #pass
+        #elif action in '== operator':
+            #pass
+        #elif action in '!= operator':
+            #pass
+        #elif action in '< operator':
+            #pass
+        #elif action in '> operator':
+            #pass
+        #elif action in '<= operator':
+            #pass
+        #elif action in '>= operator':
+            #pass
         elif action in 'in operator':
             self.locator.get_service("editor").insert_text('{% if ' + '{} in {}'.format(str(QInputDialog.getText(None, __doc__, "String to check:", text='"foo"')[0]).strip(), str(QInputDialog.getText(None, __doc__, "Variable to check into:", text='bar')[0]).strip()) + ' %} ' + str(self.locator.get_service("editor").get_actual_tab().textCursor().selectedText().encode("utf-8")) + ' {% endif %}')
         elif action in 'not in operator':
@@ -534,6 +532,10 @@ class Main(plugin.Plugin):
                 self.locator.get_service("editor").insert_text('{% comment %} ' + f.read() + ' {% endcomment %}')
         elif action in 'singlelinecommentdatetime':
             self.locator.get_service("editor").insert_text('{# ' + datetime.now().isoformat().split('.')[0] + ' by ' + getuser() + ' #}')
+        elif action in 'htmlcomment':
+            self.locator.get_service("editor").insert_text('<!-- ' + str(self.locator.get_service("editor").get_actual_tab().textCursor().selectedText().encode("utf-8")) + ' -->')
+        elif action in 'iecomment':
+            self.locator.get_service("editor").insert_text('<!--[if {} IE {}]> '.format(str(QInputDialog.getItem(None, __doc__, "Conditional format:", ['lte', 'lt', 'gt', 'gte'], 0, False)[0]), str(int(QInputDialog.getInteger(None, __doc__, "MS Internet Explorer Version:", 7, 5, 10, 1)[0])))  + str(self.locator.get_service("editor").get_actual_tab().textCursor().selectedText().encode("utf-8")) + ' <![endif]-->')
         #elif action in 'i18n':
             #pass
         #elif action in 'l10n':
